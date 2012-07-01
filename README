@@ -11,6 +11,9 @@ once every three minutes. Because it does so randomly, some times it will take
 up to three minutes, some times they'll be just seconds apart, but over time
 they should average out to about 90 seconds apart (half of three minutes).
 
+(Note that the code currently only pauses one second between checks. This is
+for development/debugging.)
+
 There is no UI on the app yet, but you can run it from the command line like
 this:
 
