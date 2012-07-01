@@ -20,7 +20,7 @@ this:
   $ sbt run
 
 Besides fooling with the source code, the two files you can adjust are in the
-testing/ subdirectory. Note that all sound files beneath the root sound file
+"testing" subdirectory. Note that all sound files beneath the root sound file
 directory are discovered, so they don't have to all be in one directory.
 
 Sample Sound Files
