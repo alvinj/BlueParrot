@@ -1,7 +1,20 @@
 Blue Parrot
 -----------
 
-This is the README file for the Blue Parrot app. Not much to say yet.
+Like a parrot, the Blue Parrot is an app that (a) plays sound clips 
+and (b) speaks text phrases, and does both of those at random times, 
+intermixing them randomly.
+
+You can control the max time between what it says. For instance, if you
+specify three minutes, it will speak a quote or play a sound clip at least
+once every three minutes. Because it does so randomly, some times it will take 
+up to three minutes, some times they'll be just seconds apart, but over time
+they should average out to about 90 seconds apart (half of three minutes).
+
+There is no UI on the app yet, but you can run it from the command line like
+this:
+
+  $ sbt run
 
 
 Developer Notes
