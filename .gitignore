@@ -1,0 +1,10 @@
+.cache
+.classpath
+.project
+.settings
+bin/
+target/
+project/target/
+project/boot/
+project/build/
+project/plugins/
