@@ -27,15 +27,13 @@ class MainImagePanel extends JPanel {
 
 class ActionPanel extends JPanel {
   
-  val editSoundFileFolderWidget = new JButton
-  val editPhrasesWidget = new JButton
-  val editMaxWaitTimeWidget = new JButton
-  
-  editSoundFileFolderWidget.setText("Sound File Folder")
-  editPhrasesWidget.setText("Text Phrases")
-  editMaxWaitTimeWidget.setText("Max Wait Time")
+  val editSoundFileFolderWidget = new JButton("Sound File Folder")
+  val editPhrasesWidget = new JButton("Text Phrases")
+  val editMaxWaitTimeWidget = new JButton("Max Wait Time")
+  val startStopButton = new JButton("Start")
   
   setLayout(new FlowLayout)
+  add(startStopButton)
   add(editSoundFileFolderWidget)
   add(editPhrasesWidget)
   add(editMaxWaitTimeWidget)

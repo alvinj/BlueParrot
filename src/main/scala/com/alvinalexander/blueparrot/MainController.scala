@@ -4,10 +4,21 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
-import com.apple.eawt.Application;
+import com.apple.eawt.Application
 import javax.swing.JFrame
+import akka.actor.ActorRef
+import akka.util.Timeout
+import akka.dispatch.Await
+import akka.dispatch.Await
+import akka.dispatch.Future
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 class MainController extends MacOSXApplicationInterface {
+  
+  var parrot:ActorRef = _
+  val system = ActorSystem("BlueParrot")
 
   val canonPropsFilename = "/Users/al/Projects/Scala/BlueParrot/testing/blueparrot.props"
   val canonPhrasesFilename = "/Users/al/Projects/Scala/BlueParrot/testing/blueparrot.phrases"
@@ -22,35 +33,70 @@ class MainController extends MacOSXApplicationInterface {
   var mainFrameController:MainFrameController = _
 
   def start {
-    startActors
+    initActors
+    initOurData
     configureMacOsXStuff
     displayTheUi
   }
 
-  // the user can update these
-  def setSoundFileFolder(s: String) { soundFileFolder = s }
-  def setPhrasesToSpeak(a: Array[String]) { phrasesToSpeak = a }
-  def setMaxWaitTime(t: Long) { maxWaitTime = t }
+  /**
+   * Right now the actors know where the data is, so i have to get it from them.
+   */
+  def initOurData {
+    implicit val timeout = Timeout(5 seconds)
+    val future = parrot ? GetPhrasesToSpeak
+    phrasesToSpeak = Await.result(future, timeout.duration).asInstanceOf[Array[String]]
+  }
   
-  def startActors {
-    val system = ActorSystem("BlueParrot")
-    val parrot = system.actorOf(Props(new RandomSpeakingActor(canonPropsFilename, canonPhrasesFilename )), name = "RandomSpeakingActor")
+  def startTalking {
+    println("startTalking")
     parrot ! StartMessage
   }
+  
+  def stopTalking {
+    println("stopTalking")
+    parrot ! StopMessage
+  }
 
-  def configureMacOsXStuff {
+  // the user can update these
+  def setSoundFileFolder(s: String) { 
+    // TODO need to save this as a property
+    soundFileFolder = s
+    parrot ! SetSoundFolder(s)
+  }
+
+  def setPhrasesToSpeak(a: Array[String]) { 
+    phrasesToSpeak = a
+    parrot ! SetPhrasesToSpeak(a)
+  }
+
+  def setMaxWaitTime(t: Long) { 
+    maxWaitTime = t
+    parrot ! MaxWaitTime(t)
+  }
+  
+  def getPhrasesAsMultilineString: String = {
+    phrasesToSpeak.mkString("\n")
+  }
+
+  
+  private def initActors {
+    parrot = system.actorOf(Props(new RandomSpeakingActor(canonPropsFilename, canonPhrasesFilename )), name = "RandomSpeakingActor")
+  }
+
+  private def configureMacOsXStuff {
     macApplication = Application.getApplication
     configureOSXAboutPreferencesAndQuit(macApplication);
   }
 
-  def configureOSXAboutPreferencesAndQuit(theApplication: Application) {
+  private def configureOSXAboutPreferencesAndQuit(theApplication: Application) {
     macAdapter = new MacOSXApplicationAdapter(this)
     theApplication.addApplicationListener(macAdapter)
     // must enable the preferences option manually, if wanted
     //theApplication.setEnabledPreferencesMenu(true);
   }
 
-  def displayTheUi {
+  private def displayTheUi {
     mainFrameController = new MainFrameController(this)
     mainFrameController.displayMainFrame
   }
@@ -69,3 +115,10 @@ class MainController extends MacOSXApplicationInterface {
   }
 
 }
+
+
+
+
+
+
+
