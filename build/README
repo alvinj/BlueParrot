@@ -1,0 +1,10 @@
+
+TO CREATE A MAC APP
+
+0) Precompile the app with sbt.
+1) Make sure the jarbundler jar file is in the ant/lib folder. I've copied it to ant-1.6.5 and ant-1.7.0.
+2) Just run "ant" to get this build to run.
+
+
+
+

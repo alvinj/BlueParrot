@@ -1,0 +1,7 @@
+
+* one-jar didn't work, trying sbt-assembly
+  https://github.com/sbt/sbt-assembly
+
+  $ sbt assembly
+
+

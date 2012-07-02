@@ -1,0 +1,84 @@
+<project name="BlueParrot" default="do-bundle" basedir="..">
+
+  <taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" />
+	
+  <!-- TODO
+  
+       * need to get all dependencies from sbt
+       * need to get jars in lib if sbt doesn't do that either
+  
+  -->
+
+  <property name="sbt_jar_dir" value="target" />
+  <property name="sbt_jar_filename" value="BlueParrot-assembly-1.0.jar" />
+
+  <!-- main build properties -->
+  <property name="build_dir"  value="build"/>
+  <property name="lib_dir"  value="lib"/>
+  <property name="manifest_filename"  value="BlueParrot.manifest"/>
+  <!-- display name, such as in the menubar -->
+  <property name="display_name"  value="Blue Parrot"/>
+
+  <!-- jar bundler properties -->
+  <property name="bundle_canon_main_class"  value="com.alvinalexander.blueparrot.BlueParrot"/>
+  <property name="bundle_dir" value="release"/>
+  <property name="bundle_name" value="BlueParrot"/>
+  <property name="bundle_shortname"  value="BlueParrot"/>
+  <property name="bundle_signature"  value="Alvin Alexander"/>
+  <property name="bundle_icon_file"  value="${build_dir}/BlueParrot.icns"/>
+  <property name="bundle_jvmversion"  value="1.6+"/>
+  <property name="bundle_appversion"  value="0.1"/>
+  <property name="bundle_infostring"  value="Blue Parrot"/>
+  <property name="bundle_build"  value="1001"/>
+  <property name="bundle_main_class"  value="${bundle_canon_main_class}"/>
+  <property name="bundle_bundleid"  value="${bundle_canon_main_class}"/>
+
+  <!--
+  <path id="class.path">
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+      <include name="**/*.zip"/>
+    </fileset>
+  </path>
+
+  <target name="init">
+    <tstamp/>
+  </target>
+  -->
+
+  <!-- JAR BUNDLER TASK -->
+  <target name="do-bundle">
+    <jarbundler dir="${bundle_dir}"
+                name="${bundle_name}"
+                shortname="${bundle_shortname}"
+                signature="${bundle_signature}"
+                mainclass="${bundle_main_class}" 
+                icon="${bundle_icon_file}"
+                jvmversion="${bundle_jvmversion}"
+                version="${bundle_jvmversion}"
+                infostring="${bundle_infostring}"
+                build="${bundle_build}"
+                bundleid="${bundle_bundleid}" >
+
+      <jarfileset dir="${sbt_jar_dir}">
+        <include name="${sbt_jar_filename}" />
+      </jarfileset>
+    	
+      <jarfileset dir="${build_dir}">
+        <include name="scala-library.jar" />
+      </jarfileset>
+
+      <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+      <javaproperty name="apple.awt.brushMetal" value="true"/>
+      <javaproperty name="apple.awt.showGrowBox" value="true"/>
+      <javaproperty name="com.apple.mrj.application.apple.menu.about.name" value="${display_name}"/>
+      <javaproperty name="apple.awt.textantialiasing" value="true"/>
+    </jarbundler>
+  </target>
+
+</project>
+
+
+
+
+
