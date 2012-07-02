@@ -19,11 +19,12 @@ case class SetSoundFolder(folder: String)
 case class MaxWaitTime(t: Long)
 case class SetPhrasesToSpeak(phrases: Array[String])
 case object GetPhrasesToSpeak
+case object MakeRandomNoise
 
 class RandomSpeakingActor(canonPropsFilename: String, canonPhrasesFilename: String) 
 extends Actor
 {
-  val helper:ActorRef = context.actorOf(Props(new RandomSpeakingHelper(canonPropsFilename, canonPhrasesFilename)), name = "RandomSpeakingHelper")
+  val helper = context.actorOf(Props(new RandomSpeakingHelper(canonPropsFilename, canonPhrasesFilename)), name = "RandomSpeakingHelper")
 
   def receive = {
     case StartMessage =>
@@ -32,8 +33,9 @@ extends Actor
 
     case StopMessage =>
          println("main actor rec'd StopMessage")
-         helper ! StopMessage
-         // context.stop(helper)
+         helper ! PoisonPill
+         //context.stop(helper)
+         //helper ! StopMessage
          // TODO stop the worker thread
          //context.stop(self)
          //context.system.shutdown
@@ -63,6 +65,39 @@ extends Actor
 }
 
 
+//------------------------ TIMER -------------------------
+
+/**
+ * This actor should only be started/called by the helper.
+ */
+class TimerHelper(maxWaitTime: Int) extends Actor {
+  def receive = {
+    case StartMessage =>
+      startLoop
+    // TODO need to find a way to stop this actor
+  }
+  
+  def startLoop {
+    var count = 0
+    var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
+    while (true) {
+      println("maxWaitTime(%s), randomWaitTime(%s), count(%s)".format(maxWaitTime, randomWaitTime, count))
+      sleepForAMinute
+      count += 1
+      if (count >= randomWaitTime) {
+        context.parent ! MakeRandomNoise
+        count = 0
+        randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
+      }
+    }
+  }
+  // TODO set this back to a minute when done testing
+  def sleepForAMinute = Thread.sleep(1*1000)
+}
+
+
+//---------------------- HELPER ------------------------
+
 
 /**
  * This helper class now does the heavy lifting.
@@ -88,7 +123,10 @@ extends Actor
   private val PROP_MAX_TIME_KEY = "max_wait_time"  // key in the properties file
   private val PROP_ROOT_SOUNDFILE_DIR = "soundfile_dir"
     
-  private var inRunningState = false
+  private var inSpeakingState = false
+  
+  // TODO need a way to update the maxWaitTime
+  val timer = context.actorOf(Props(new TimerHelper(maxWaitTime)), name = "TimerHelper")
 
   // read properties file before anything else
   readConfigFile
@@ -99,12 +137,12 @@ extends Actor
 
     case StartMessage =>
          println("helper rec'd StartMessage")
-         inRunningState = true
-         startLoop
+         inSpeakingState = true
+         timer ! StartMessage
 
     case StopMessage =>
          println("helper rec'd StopMessage")
-         inRunningState = false
+         inSpeakingState = false
 
     case SetSoundFolder(folder) =>
          rootSoundFileDir = folder
@@ -117,6 +155,9 @@ extends Actor
 
     case GetPhrasesToSpeak =>
          sender ! getPhrasesFromFilesystem
+         
+    case MakeRandomNoise =>
+         makeRandomNoise
 
     case _ => println("got unexpected message")
 
@@ -124,27 +165,15 @@ extends Actor
 
   // TODO set this back to a minute when done testing
   def sleepForAMinute = Thread.sleep(1*1000)
-
-  def startLoop {
-    var count = 0
-    var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
-    while (true && inRunningState) {
-      println("maxWaitTime: " + maxWaitTime)
-      println("randomWaitTime: " + randomWaitTime)
-      sleepForAMinute
-      count += 1
-      println("count: " + count)
-      if (count >= randomWaitTime) {
-        getRandom0Or1 match {
-          case 0 => playSoundFile(getRandomSoundFile)
-          case 1 => speakText(getRandomPhrase)
-        }
-        count = 0
-        randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
-      }
+  
+  def makeRandomNoise {
+    if (!inSpeakingState) return
+    getRandom0Or1 match {
+      case 0 => playSoundFile(getRandomSoundFile)
+      case 1 => speakText(getRandomPhrase)
     }
   }
-  
+
   // TODO add the ability to speak using different voices
   def speakText(textToSay: String) {
     AppleScriptUtils.speak(textToSay)
