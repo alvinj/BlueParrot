@@ -12,6 +12,8 @@ import akka.dispatch.Future
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
+import akka.util.Duration
+import java.util.concurrent.TimeUnit
 
 case object StartMessage
 case object StopMessage
@@ -20,6 +22,7 @@ case class MaxWaitTime(t: Long)
 case class SetPhrasesToSpeak(phrases: Array[String])
 case object GetPhrasesToSpeak
 case object MakeRandomNoise
+case object ScheduleNextSound
 
 class RandomSpeakingActor(canonPropsFilename: String, canonPhrasesFilename: String) 
 extends Actor
@@ -29,7 +32,11 @@ extends Actor
   def receive = {
     case StartMessage =>
          println("main actor rec'd StartMessage")
-         startMainLoop
+         //startMainLoop
+         helper ! ScheduleNextSound
+         
+    case ScheduleNextSound =>
+         helper ! ScheduleNextSound
 
     case StopMessage =>
          println("main actor rec'd StopMessage")
@@ -58,41 +65,6 @@ extends Actor
     case _ => println("Got something unexpected.") 
   }
   
-  def startMainLoop {
-    helper ! StartMessage
-  }
-  
-}
-
-
-//------------------------ TIMER -------------------------
-
-/**
- * This actor should only be started/called by the helper.
- */
-class TimerHelper(maxWaitTime: Int) extends Actor {
-  def receive = {
-    case StartMessage =>
-      startLoop
-    // TODO need to find a way to stop this actor
-  }
-  
-  def startLoop {
-    var count = 0
-    var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
-    while (true) {
-      println("maxWaitTime(%s), randomWaitTime(%s), count(%s)".format(maxWaitTime, randomWaitTime, count))
-      sleepForAMinute
-      count += 1
-      if (count >= randomWaitTime) {
-        context.parent ! MakeRandomNoise
-        count = 0
-        randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
-      }
-    }
-  }
-  // TODO set this back to a minute when done testing
-  def sleepForAMinute = Thread.sleep(1*1000)
 }
 
 
@@ -122,28 +94,21 @@ extends Actor
   private val PROPERTIES_REL_FILENAME = "RandomNoise.properties"
   private val PROP_MAX_TIME_KEY = "max_wait_time"  // key in the properties file
   private val PROP_ROOT_SOUNDFILE_DIR = "soundfile_dir"
-    
   private var inSpeakingState = false
   
-  // TODO need a way to update the maxWaitTime
   val timer = context.actorOf(Props(new TimerHelper(maxWaitTime)), name = "TimerHelper")
-
-  // read properties file before anything else
-  readConfigFile
-
+  getPropertiesFromConfigFile
   private var allSoundFiles:Array[File] = _
 
   def receive = {
 
-    case StartMessage =>
-         println("helper rec'd StartMessage")
+    case ScheduleNextSound =>
          inSpeakingState = true
-         timer ! StartMessage
+         timer ! ScheduleNextSound
 
     case StopMessage =>
-         println("helper rec'd StopMessage")
          inSpeakingState = false
-
+         
     case SetSoundFolder(folder) =>
          rootSoundFileDir = folder
 
@@ -158,6 +123,7 @@ extends Actor
          
     case MakeRandomNoise =>
          makeRandomNoise
+         timer ! ScheduleNextSound
 
     case _ => println("got unexpected message")
 
@@ -169,10 +135,16 @@ extends Actor
   def makeRandomNoise {
     if (!inSpeakingState) return
     getRandom0Or1 match {
-      case 0 => playSoundFile(getRandomSoundFile)
-      case 1 => speakText(getRandomPhrase)
+      case 0 =>
+           println("0")
+           playSoundFile(getRandomSoundFile)
+      case 1 => 
+           println("1")
+           speakText(getRandomPhrase)
     }
   }
+
+  def getRandom0Or1: Int = new Random(System.currentTimeMillis).nextInt(2)
 
   // TODO add the ability to speak using different voices
   def speakText(textToSay: String) {
@@ -205,7 +177,7 @@ extends Actor
     FileUtils.getFileContentsAsList(canonPhrasesFilename).toArray
   }
   
-  def readConfigFile {
+  def getPropertiesFromConfigFile {
     try {
       properties = FileUtils.readPropertiesFile(canonPropsFilename)
       maxWaitTime = properties.getProperty(PROP_MAX_TIME_KEY).toInt
@@ -235,11 +207,6 @@ extends Actor
     return allSoundFiles(i)
   }
   
-  def getRandom0Or1: Int = {
-    val r = new Random(System.currentTimeMillis)
-    r.nextInt(2)
-  }
-
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.
    */
@@ -262,11 +229,29 @@ extends Actor
     }
     false
   }
-  
-
 
 }
-  
+
+//------------------------ TIMER -------------------------
+
+/**
+ * This actor should only be started/called by the helper.
+ */
+class TimerHelper(maxWaitTime: Int) extends Actor {
+  def receive = {
+    case ScheduleNextSound =>
+      var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
+      println("maxWaitTime(%s), randomWaitTime(%s)".format(maxWaitTime, randomWaitTime))
+      context.system.scheduler.scheduleOnce(Duration.create(randomWaitTime, TimeUnit.SECONDS), context.parent, MakeRandomNoise)
+  }
+}
+
+
+
+
+
+
+
 
 
 
