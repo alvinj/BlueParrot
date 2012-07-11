@@ -14,6 +14,7 @@ import akka.util.Timeout
 import akka.util.duration._
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
+import scala.collection.mutable.ArrayBuffer
 
 case object StartMessage
 case object StopMessage
@@ -70,6 +71,10 @@ extends Actor
 
 //---------------------- HELPER ------------------------
 
+trait RandomThing
+case class RandomFile(f: File) extends RandomThing
+case class RandomString(s: String) extends RandomThing
+
 
 /**
  * This helper class now does the heavy lifting.
@@ -114,6 +119,7 @@ extends Actor
 
     case MaxWaitTime(time) =>
          maxWaitTime = time.toInt
+         timer ! MaxWaitTime(time)
 
     case SetPhrasesToSpeak(phrases) =>
          updatePhrasesToSpeak(phrases)
@@ -130,21 +136,37 @@ extends Actor
   }
 
   // TODO set this back to a minute when done testing
-  def sleepForAMinute = Thread.sleep(1*1000)
+  //def sleepForAMinute = Thread.sleep(1*1000)
   
   def makeRandomNoise {
     if (!inSpeakingState) return
-    getRandom0Or1 match {
-      case 0 =>
-           println("0")
-           playSoundFile(getRandomSoundFile)
-      case 1 => 
-           println("1")
-           speakText(getRandomPhrase)
+    getRandomThing match {
+      case RandomString(s) =>
+           speakText(s)
+      case RandomFile(f) =>
+           playSoundFile(f)
     }
   }
 
-  def getRandom0Or1: Int = new Random(System.currentTimeMillis).nextInt(2)
+  //def getRandom0Or1: Int = new Random(System.currentTimeMillis).nextInt(2)
+
+  /**
+   * Gets all strings and files, then returns either a RandomString or
+   * RandomFile.
+   * 
+   * Note that if there are 9 files and 1 string, there is a 90% chance
+   * of getting a file. (This differs from the old approach.)
+   */
+  def getRandomThing: RandomThing = {
+    val phrases = getPhrasesFromFilesystem
+    val soundFiles = getRecursiveListOfSoundFiles(rootSoundFileDir)
+    val all = new ArrayBuffer[RandomThing]
+    for(s <- phrases) all += RandomString(s)
+    for(f <- soundFiles) all += RandomFile(f)
+    val r = new Random(System.currentTimeMillis)
+    val i = r.nextInt(all.size)
+    all(i)
+  }
 
   // TODO add the ability to speak using different voices
   def speakText(textToSay: String) {
@@ -210,11 +232,13 @@ extends Actor
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.
    */
-  def getRecursiveListOfSoundFiles(dirName: String) = {
+  def getRecursiveListOfSoundFiles(dirName: String):Array[File] = {
     val files = FileUtils.getRecursiveListOfFiles(new File(dirName))
-    for (file <- files 
-        if hasSoundFileExtension(file)
-        if !soundFileIsLong(file)) yield file
+    for {
+      file <- files 
+      if hasSoundFileExtension(file)
+      if !soundFileIsLong(file)
+    } yield file
   }
 
   def soundFileIsLong(f: File) = {
@@ -237,12 +261,14 @@ extends Actor
 /**
  * This actor should only be started/called by the helper.
  */
-class TimerHelper(maxWaitTime: Int) extends Actor {
+class TimerHelper(var maxWaitTime: Int) extends Actor {
   def receive = {
     case ScheduleNextSound =>
       var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
       println("maxWaitTime(%s), randomWaitTime(%s)".format(maxWaitTime, randomWaitTime))
       context.system.scheduler.scheduleOnce(Duration.create(randomWaitTime, TimeUnit.SECONDS), context.parent, MakeRandomNoise)
+    case MaxWaitTime(time) =>
+      maxWaitTime = time.toInt
   }
 }
 
