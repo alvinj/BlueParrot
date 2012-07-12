@@ -40,9 +40,13 @@ object FileUtils {
     return Source.fromFile(canonicalFilename).mkString
   }
   
-  // TODO rm blank lines and lines beginning with '#'
   def getFileContentsAsList(canonicalFilename: String): List[String] = {
     return Source.fromFile(canonicalFilename).getLines.toList
+  }
+
+  def getFileContentsAsListBlanksCommentsRemoved(canonicalFilename: String): List[String] = {
+    val list = Source.fromFile(canonicalFilename).getLines.toList
+    list.filter(_.trim != "").filter(_.charAt(0) != '#')
   }
 
   val getFilepathSeparator = System.getProperty("file.separator")

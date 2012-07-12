@@ -178,7 +178,7 @@ extends Actor
   }
 
   def getPhrasesFromFilesystem: Array[String] = {
-    FileUtils.getFileContentsAsList(canonPhrasesFilename).toArray
+    FileUtils.getFileContentsAsListBlanksCommentsRemoved(canonPhrasesFilename).toArray
   }
   
   def playSoundFile(f: File) {

@@ -68,7 +68,7 @@ class MainFrameController(mainController: MainController) {
   
   val editMaxWaitTimeListener = new ActionListener {
     def actionPerformed(e: ActionEvent) {
-      val secondsAsString = JOptionPane.showInputDialog(mainFrame, "Max. Wait Time (in seconds)")
+      val secondsAsString = JOptionPane.showInputDialog(mainFrame, "Max. Wait Time (in seconds)", mainController.maxWaitTime)
       if (secondsAsString == null || secondsAsString.trim == "") {
         // do nothing, use canceled
       } else {
