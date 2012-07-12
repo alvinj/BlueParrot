@@ -1,7 +1,0 @@
-
-# where my test sound files are located
-soundfile_dir = /Users/al/Sarah/plugins/DDRandomNoise/HAL9000
-
-# max time to wait between phrases
-max_wait_time = 15
-

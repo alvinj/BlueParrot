@@ -68,11 +68,19 @@ class MainFrameController(mainController: MainController) {
   
   val editMaxWaitTimeListener = new ActionListener {
     def actionPerformed(e: ActionEvent) {
-      val secondsAsString = JOptionPane.showInputDialog(mainFrame, "Max. Wait Time (in seconds)", mainController.maxWaitTime)
-      if (secondsAsString == null || secondsAsString.trim == "") {
-        // do nothing, use canceled
-      } else {
-        updateMaxWaitTimeIfStringIsValidInt(secondsAsString)
+      // using this option so i can set the dialog title
+      val result = JOptionPane.showInputDialog(mainFrame, 
+          "Max. Wait Time (in seconds)",
+          "Maximum Wait Time",
+          JOptionPane.QUESTION_MESSAGE,
+          null,
+          null,
+          mainController.maxWaitTime)
+      result match {
+        case null => return
+        case s:String if s.trim == "" => return
+        case s:String => updateMaxWaitTimeIfStringIsValidInt(s)
+        case _ => return  // proverbial "can't happen"
       }
     }
   }

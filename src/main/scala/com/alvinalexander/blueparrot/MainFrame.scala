@@ -32,8 +32,18 @@ object MainFrame {
 class MainImagePanel extends JPanel {
   
   // jar approach
+  var parrotImage:ImageIcon = _
+  
+  try {
+    // try getting it out of the jar (production)
+    parrotImage = new ImageIcon(getClass.getResource("blueparrot.png"))
+  } catch {
+    case e: Exception =>
+      // get it as a file (working in eclipse)
+      parrotImage = new ImageIcon("/Users/al/Projects/Scala/BlueParrot/src/main/resources/com/alvinalexander/blueparrot/blueparrot.png")
+  }
   //val parrotImage = new ImageIcon(getClass.getResource("blueparrot.png"))
-  val parrotImage = new ImageIcon("/Users/al/Projects/Scala/BlueParrot/src/main/resources/com/alvinalexander/blueparrot/blueparrot.png")
+  //val parrotImage = new ImageIcon("/Users/al/Projects/Scala/BlueParrot/src/main/resources/com/alvinalexander/blueparrot/blueparrot.png")
   val parrotLabel = new JLabel()
   parrotLabel.setIcon(parrotImage)
   add(parrotLabel)
