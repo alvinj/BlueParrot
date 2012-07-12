@@ -19,34 +19,28 @@ import scala.collection.mutable.ArrayBuffer
 case object StartMessage
 case object StopMessage
 case class SetSoundFolder(folder: String)
-case class MaxWaitTime(t: Long)
+case class MaxWaitTime(t: Int)
 case class SetPhrasesToSpeak(phrases: Array[String])
 case object GetPhrasesToSpeak
 case object MakeRandomNoise
 case object ScheduleNextSound
 
-class RandomSpeakingActor(canonPropsFilename: String, canonPhrasesFilename: String) 
+class RandomSpeakingActor(canonPhrasesFilename: String, 
+                          rootSoundFileDir: String,
+                          var maxWaitTime: Int) 
 extends Actor
 {
-  val helper = context.actorOf(Props(new RandomSpeakingHelper(canonPropsFilename, canonPhrasesFilename)), name = "RandomSpeakingHelper")
+  val helper = context.actorOf(Props(new RandomSpeakingHelper(canonPhrasesFilename, rootSoundFileDir, maxWaitTime)), name = "RandomSpeakingHelper")
 
   def receive = {
     case StartMessage =>
-         println("main actor rec'd StartMessage")
-         //startMainLoop
          helper ! ScheduleNextSound
          
     case ScheduleNextSound =>
          helper ! ScheduleNextSound
 
     case StopMessage =>
-         println("main actor rec'd StopMessage")
-         helper ! PoisonPill
-         //context.stop(helper)
-         //helper ! StopMessage
-         // TODO stop the worker thread
-         //context.stop(self)
-         //context.system.shutdown
+         helper ! StopMessage
 
     case SetSoundFolder(folder: String) =>
          helper ! SetSoundFolder(folder)
@@ -85,7 +79,9 @@ case class RandomString(s: String) extends RandomThing
  *        AppleScriptUtils.speak("Hello, world", VICKI)
  * 
  */
-class RandomSpeakingHelper(canonPropsFilename: String, canonPhrasesFilename: String) 
+class RandomSpeakingHelper(canonPhrasesFilename: String, 
+                           var rootSoundFileDir: String,
+                           var maxWaitTime: Int) 
 extends Actor
 {
   
@@ -93,16 +89,10 @@ extends Actor
 
   // properties
   private var properties:Properties = _
-  private var maxWaitTime = 20
-  private var rootSoundFileDir:String = _
   private var phrasesToSpeak:Array[String] = _
-  private val PROPERTIES_REL_FILENAME = "RandomNoise.properties"
-  private val PROP_MAX_TIME_KEY = "max_wait_time"  // key in the properties file
-  private val PROP_ROOT_SOUNDFILE_DIR = "soundfile_dir"
   private var inSpeakingState = false
   
   val timer = context.actorOf(Props(new TimerHelper(maxWaitTime)), name = "TimerHelper")
-  getPropertiesFromConfigFile
   private var allSoundFiles:Array[File] = _
 
   def receive = {
@@ -113,12 +103,12 @@ extends Actor
 
     case StopMessage =>
          inSpeakingState = false
-         
+
     case SetSoundFolder(folder) =>
          rootSoundFileDir = folder
 
     case MaxWaitTime(time) =>
-         maxWaitTime = time.toInt
+         maxWaitTime = time
          timer ! MaxWaitTime(time)
 
     case SetPhrasesToSpeak(phrases) =>
@@ -135,9 +125,6 @@ extends Actor
 
   }
 
-  // TODO set this back to a minute when done testing
-  //def sleepForAMinute = Thread.sleep(1*1000)
-  
   def makeRandomNoise {
     if (!inSpeakingState) return
     getRandomThing match {
@@ -147,8 +134,6 @@ extends Actor
            playSoundFile(f)
     }
   }
-
-  //def getRandom0Or1: Int = new Random(System.currentTimeMillis).nextInt(2)
 
   /**
    * Gets all strings and files, then returns either a RandomString or
@@ -176,7 +161,6 @@ extends Actor
   
   def updatePhrasesToSpeak(phrases: Array[String]) {
     // write these new phrases to the proper file; the rest of the code will pick it up from there
-    println("writing to file")
     canonPhrasesFilename
     val out = new PrintWriter(canonPhrasesFilename)
     try {
@@ -185,49 +169,37 @@ extends Actor
     finally{ out.close }
   }
 
-  /**
-   * Get a random phrase from the list of phrases we know.
-   */
-  def getRandomPhrase:String = {
-    // get all known phrases from our file/database
-    val strings = getPhrasesFromFilesystem
-    val r = getRandomIntFromZeroUpToMaxExclusive(strings.size)
-    strings(r)
-  }
-  
   def getPhrasesFromFilesystem: Array[String] = {
     FileUtils.getFileContentsAsList(canonPhrasesFilename).toArray
   }
   
-  def getPropertiesFromConfigFile {
-    try {
-      properties = FileUtils.readPropertiesFile(canonPropsFilename)
-      maxWaitTime = properties.getProperty(PROP_MAX_TIME_KEY).toInt
-      rootSoundFileDir = properties.getProperty(PROP_ROOT_SOUNDFILE_DIR)
-    } catch {
-      case e:Exception => e.printStackTrace
-    }
-  }
-  
   def playSoundFile(f: File) {
     try {
-      val player = SoundFilePlayer.getSoundFilePlayer(f.getCanonicalPath)
-      player.play
+      SoundFilePlayer.getSoundFilePlayer(f.getCanonicalPath).play
     } catch {
-      case e:Exception => e.printStackTrace
+      case e:Throwable =>
+        // catch the BasicPlayerException
+        //System.err.println("Can't play file: " + f.getCanonicalFile)
     }
   }
   
-  def getRandomSoundFile:File = {
-    // do this all the time, so i can adjust to new sound file dirs
-    allSoundFiles = getRecursiveListOfSoundFiles(rootSoundFileDir)
-    val r = new Random(System.currentTimeMillis)
-    val i = r.nextInt(allSoundFiles.size)
-    println("next sound file index: " + i)
-    println("# of sound files: " + allSoundFiles.size)
-    println("# of sound files: " + allSoundFiles.length)
-    return allSoundFiles(i)
-  }
+  /**
+   * Get a random phrase from the list of phrases we know.
+   */
+//  def getRandomPhrase:String = {
+//    // get all known phrases from our file/database
+//    val strings = getPhrasesFromFilesystem
+//    val r = getRandomIntFromZeroUpToMaxExclusive(strings.size)
+//    strings(r)
+//  }
+  
+//  def getRandomSoundFile:File = {
+//    // do this all the time, so i can adjust to new sound file dirs
+//    allSoundFiles = getRecursiveListOfSoundFiles(rootSoundFileDir)
+//    val r = new Random(System.currentTimeMillis)
+//    val i = r.nextInt(allSoundFiles.size)
+//    return allSoundFiles(i)
+//  }
   
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.
@@ -264,11 +236,11 @@ extends Actor
 class TimerHelper(var maxWaitTime: Int) extends Actor {
   def receive = {
     case ScheduleNextSound =>
-      var randomWaitTime = getRandomWaitTimeInMinutes(maxWaitTime)
-      println("maxWaitTime(%s), randomWaitTime(%s)".format(maxWaitTime, randomWaitTime))
+      var randomWaitTime = getRandomWaitTime(maxWaitTime)
+      //println("maxWaitTime(%s), randomWaitTime(%s)".format(maxWaitTime, randomWaitTime))
       context.system.scheduler.scheduleOnce(Duration.create(randomWaitTime, TimeUnit.SECONDS), context.parent, MakeRandomNoise)
     case MaxWaitTime(time) =>
-      maxWaitTime = time.toInt
+      maxWaitTime = time
   }
 }
 

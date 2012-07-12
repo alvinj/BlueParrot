@@ -28,7 +28,7 @@ object SwingUtils {
     fileDialog.setMode(FileDialog.LOAD)
     fileDialog.setTitle(title)
     if (currentDirectory!=null && !currentDirectory.trim.equals("")) {
-      fileDialog.setDirectory(currentDirectory);
+      fileDialog.setDirectory(currentDirectory)
     }
     fileDialog.setVisible(true)
     return fileDialog

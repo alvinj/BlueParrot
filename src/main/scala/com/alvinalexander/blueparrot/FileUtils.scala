@@ -9,12 +9,24 @@ import java.util.Properties
 import java.io.FileInputStream
 import java.io.File
 import java.io.FileFilter
+import java.io.PrintWriter
 
 /**
  * TODO - Move this to GitHub.
  */
 object FileUtils {
-  
+
+  @throws(classOf[Exception])
+  def writeStringsToFile(phrases: Array[String], canonFilename: String) {
+    val out = new PrintWriter(canonFilename)
+    try {
+      for (s <- phrases) out.println(s)
+    } catch {
+      case e: Exception => throw e
+    }
+    finally{ out.close }
+  }
+
   /**
    * Gets a random string from the given file. The file is assumed to have one or more
    * lines of strings that are meant to be read in as an array/list.

@@ -87,10 +87,12 @@ public class EditPhrasesDialog extends JDialog {
 
         //---- headerLabel ----
         headerLabel.setText("Phrases the Parrot Should Speak");
+        Font boldFont = new Font("Lucida Grande", Font.BOLD, 14);
+        headerLabel.setFont(boldFont);
         contentPanel.add(headerLabel, cc.xywh(1, 1, 5, 1));
 
         //---- helpText ----
-        helpText.setText("Lorem ipsum some other things, yada yada ...");
+        helpText.setText("Enter any phrases you want the parrot to speak, one phrase per line.");
         contentPanel.add(helpText, cc.xywh(1, 3, 5, 1));
 
         //======== scrollPane ========

@@ -27,8 +27,11 @@ class MainFrameController(mainController: MainController) {
       if (dir == null || dir.trim == "" || dir == lastDirectory) {
         // do nothing
       } else {
-        lastDirectory = dir
-        mainController.setSoundFileFolder(dir)
+        // actually get the last selected dir as a file
+        val canonDir = dir + d.getFile
+        lastDirectory = canonDir
+        mainController.setSoundFileFolder(canonDir)
+        println("selected dir:  " + canonDir)
       }
       System.setProperty("apple.awt.fileDialogForDirectories", "false");
     }
@@ -70,9 +73,17 @@ class MainFrameController(mainController: MainController) {
       if (secondsAsString == null || secondsAsString.trim == "") {
         // do nothing, use canceled
       } else {
-        // TODO add some error checking here
-        mainController.setMaxWaitTime(secondsAsString.toLong)
+        updateMaxWaitTimeIfStringIsValidInt(secondsAsString)
       }
+    }
+  }
+
+  private def updateMaxWaitTimeIfStringIsValidInt(secondsAsString: String) {
+    try {
+      val seconds = secondsAsString.toInt
+      mainController.setMaxWaitTime(seconds)
+    } catch {
+      case e: Exception => // do nothing
     }
   }
   

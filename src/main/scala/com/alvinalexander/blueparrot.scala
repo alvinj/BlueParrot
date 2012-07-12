@@ -6,9 +6,8 @@ import scala.util.Random
 
 package object blueparrot {
   
-  def getRandomWaitTimeInMinutes(maxWaitTime: Int):Int = {
-    val r = new Random(System.currentTimeMillis)
-    r.nextInt(maxWaitTime)
+  def getRandomWaitTime(maxWaitTime: Int):Int = {
+    (new Random(System.currentTimeMillis)).nextInt(maxWaitTime)
   }
   
   // give me a max of 3, i'll return 0, 1, or 2
