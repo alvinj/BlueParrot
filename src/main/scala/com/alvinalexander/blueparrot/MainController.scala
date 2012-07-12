@@ -91,12 +91,10 @@ class MainController extends MacOSXApplicationInterface {
   }
   
   def startTalking {
-    println("startTalking")
     parrot ! StartMessage
   }
   
   def stopTalking {
-    println("stopTalking")
     parrot ! StopMessage
   }
 

@@ -155,7 +155,15 @@ extends Actor
 
   // TODO add the ability to speak using different voices
   def speakText(textToSay: String) {
-    AppleScriptUtils.speak(textToSay)
+    if (textToSay.contains("|")) {
+      val parts = textToSay.split('|')
+      val text = parts(0).trim
+      val voice = parts(1).trim.toUpperCase
+      AppleScriptUtils.speak(text, voice)
+      
+    } else {
+      AppleScriptUtils.speak(textToSay)
+    }
     //AppleScriptUtils.speak("Hello, world", VICKI)
   }
   
