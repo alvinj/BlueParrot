@@ -31,7 +31,6 @@ class MainFrameController(mainController: MainController) {
         val canonDir = dir + d.getFile
         lastDirectory = canonDir
         mainController.setSoundFileFolder(canonDir)
-        println("selected dir:  " + canonDir)
       }
       System.setProperty("apple.awt.fileDialogForDirectories", "false");
     }
@@ -91,10 +90,12 @@ class MainFrameController(mainController: MainController) {
     def actionPerformed(e: ActionEvent) {
       val button = e.getSource.asInstanceOf[JButton]
       if (button.getText == "Start") {
+        mainFrame.mainImagePanel.setBackground(MainFrame.colorWhenRunning)
         mainController.startTalking
         button.setText("Stop")
       } else {
         button.setText("Start")
+        mainFrame.mainImagePanel.setBackground(MainFrame.colorWhenNotRunning)
         mainController.stopTalking
       }
     }

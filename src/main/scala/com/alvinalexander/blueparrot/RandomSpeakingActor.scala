@@ -112,7 +112,7 @@ extends Actor
          timer ! MaxWaitTime(time)
 
     case SetPhrasesToSpeak(phrases) =>
-         updatePhrasesToSpeak(phrases)
+         savePhrasesToSpeak(phrases)
 
     case GetPhrasesToSpeak =>
          sender ! getPhrasesFromFilesystem
@@ -167,7 +167,7 @@ extends Actor
     //AppleScriptUtils.speak("Hello, world", VICKI)
   }
   
-  def updatePhrasesToSpeak(phrases: Array[String]) {
+  def savePhrasesToSpeak(phrases: Array[String]) {
     // write these new phrases to the proper file; the rest of the code will pick it up from there
     canonPhrasesFilename
     val out = new PrintWriter(canonPhrasesFilename)
@@ -182,32 +182,8 @@ extends Actor
   }
   
   def playSoundFile(f: File) {
-    try {
-      SoundFilePlayer.getSoundFilePlayer(f.getCanonicalPath).play
-    } catch {
-      case e:Throwable =>
-        // catch the BasicPlayerException
-        //System.err.println("Can't play file: " + f.getCanonicalFile)
-    }
+    SoundUtils.playSoundFile(f.getCanonicalPath)
   }
-  
-  /**
-   * Get a random phrase from the list of phrases we know.
-   */
-//  def getRandomPhrase:String = {
-//    // get all known phrases from our file/database
-//    val strings = getPhrasesFromFilesystem
-//    val r = getRandomIntFromZeroUpToMaxExclusive(strings.size)
-//    strings(r)
-//  }
-  
-//  def getRandomSoundFile:File = {
-//    // do this all the time, so i can adjust to new sound file dirs
-//    allSoundFiles = getRecursiveListOfSoundFiles(rootSoundFileDir)
-//    val r = new Random(System.currentTimeMillis)
-//    val i = r.nextInt(allSoundFiles.size)
-//    return allSoundFiles(i)
-//  }
   
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.

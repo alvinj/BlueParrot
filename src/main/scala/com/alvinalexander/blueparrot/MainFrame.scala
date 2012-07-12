@@ -22,19 +22,22 @@ class MainFrame extends JFrame {
 
 }
 
+object MainFrame {
+  val pastelYellow = new Color(255, 255, 102)
+  val boldYellow = new Color(255, 255, 34)
+  val colorWhenRunning = boldYellow
+  val colorWhenNotRunning = Color.GRAY
+}
 
 class MainImagePanel extends JPanel {
   
-  val pastelYellow = new Color(255, 255, 102)
-  val boldYellow = new Color(255, 255, 34)
-
   // jar approach
   //val parrotImage = new ImageIcon(getClass.getResource("blueparrot.png"))
   val parrotImage = new ImageIcon("/Users/al/Projects/Scala/BlueParrot/src/main/resources/com/alvinalexander/blueparrot/blueparrot.png")
   val parrotLabel = new JLabel()
   parrotLabel.setIcon(parrotImage)
   add(parrotLabel)
-  setBackground(boldYellow)
+  setBackground(MainFrame.colorWhenNotRunning)
 }
 
 class ActionPanel extends JPanel {

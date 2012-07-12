@@ -40,6 +40,7 @@ object FileUtils {
     return Source.fromFile(canonicalFilename).mkString
   }
   
+  // TODO rm blank lines and lines beginning with '#'
   def getFileContentsAsList(canonicalFilename: String): List[String] = {
     return Source.fromFile(canonicalFilename).getLines.toList
   }
