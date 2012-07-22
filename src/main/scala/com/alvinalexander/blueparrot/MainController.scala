@@ -16,6 +16,13 @@ import akka.util.Timeout
 import akka.util.duration._
 import java.util.prefs.Preferences
 import java.io.File
+import javax.swing.JEditorPane
+import java.awt.Dimension
+import java.awt.Insets
+import javax.swing.JScrollPane
+import javax.swing.event.HyperlinkListener
+import javax.swing.event.HyperlinkEvent
+import javax.swing.JOptionPane
 
 class MainController extends MacOSXApplicationInterface {
 
@@ -29,7 +36,7 @@ class MainController extends MacOSXApplicationInterface {
   val BP_DATA_DIR = "Library/Application Support/com.alvinalexander/BlueParrot"
   val CANON_PHRASES_DIR = USER_HOME_DIR + SLASH + BP_DATA_DIR
   val CANON_PHRASES_FILENAME = USER_HOME_DIR + SLASH + BP_DATA_DIR + SLASH + "BlueParrot.phrases"
-  val INITIAL_PHRASES = Array("Polly wants a cracker.", "Polly wants a drink.")
+  val INITIAL_PHRASES = Array("Hello, world", "Polly wants a cracker. | Vicki", "Polly wants a drink. | Alex")
     
   // preferences
   var soundFileFolder:String = _
@@ -145,9 +152,44 @@ class MainController extends MacOSXApplicationInterface {
     mainFrameController.displayMainFrame
   }
 
+  val ABOUT_MSG = """<html><center><p>Blue Parrot</p>
+<p>an alvin alexander creation</p></center>
+<center><p><a href=\"http://devdaily.com/blueparrot\">http://devdaily.com/blueparrot</a></p><center>"""
+  val URL = "http://www.devdaily.com/blueparrot"
+    
   def doAboutAction {
-  }
+    val editor = new JEditorPane
+    editor.setContentType("text/html")
+    editor.setEditable(false)
+    editor.setSize(new Dimension(400,300))
+    editor.setFont(UIManager.getFont("EditorPane.font"))
+    // note: had to include this line to get it to use my font
+    editor.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
+    editor.setMargin(new Insets(5,15,25,15))
+    editor.setText(ABOUT_MSG)
+    editor.setCaretPosition(0)
+    val scrollPane = new JScrollPane(editor)
 
+    editor.addHyperlinkListener(new HyperlinkListener() {
+    def hyperlinkUpdate(hev: HyperlinkEvent) {
+      if (hev.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+        val runtime = Runtime.getRuntime
+        val args = Array("osascript", "-e", "open location \"" + URL + "\"")
+        try {
+          val process = runtime.exec(args)
+        }
+        catch {
+          case e: Exception => // ignore
+        }
+      }
+    }})
+
+    // display our message
+    JOptionPane.showMessageDialog(mainFrameController.mainFrame, scrollPane,
+        "About Blue Parrot", JOptionPane.INFORMATION_MESSAGE);
+  }  
+  
+  
   def doPreferencesAction {
     // TODO if you implement this, you need to un-comment the "setEnabledPreferencesMenu" line in the main method
     //JOptionPane.showMessageDialog(null, "Sorry, no preferences at this time.");

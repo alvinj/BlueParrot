@@ -23,9 +23,8 @@ class MacOSXApplicationAdapter(handler: MacOSXApplicationInterface) extends Appl
   override def handleAbout(e: ApplicationEvent) {
     // tell the system we're handling this, so it won't display
     // the default system "about" dialog after ours is shown.
-    
-    //e.setHandled(true);
-    //handler.doAboutAction();
+    e.setHandled(true)
+    handler.doAboutAction
   }
 }
 
