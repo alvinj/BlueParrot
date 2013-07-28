@@ -14,6 +14,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable.ArrayBuffer
+import scala.language.postfixOps
 
 case object StartMessage
 case object StopMessage

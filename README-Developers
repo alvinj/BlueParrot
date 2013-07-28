@@ -1,8 +1,32 @@
 
-* one-jar didn't work, trying sbt-assembly
-  https://github.com/sbt/sbt-assembly
+To create a Mac application from this code, follow these steps:
 
-  $ sbt assembly
+1) Compile the code from the root directory with SBT, using this command:
 
-* this works, creates a complete jar file
+   $ sbt assembly
 
+That command creates one JAR file from the code:
+
+   target/BlueParrot-assembly-1.1.jar 
+
+2) If a 'release' directory doesn't already exist in the root level of the
+   project, create it.
+
+3) Next, move into the 'build' directory, then run this Ant command:
+
+   $ ant
+
+That command creates this Mac application:
+
+   release/BlueParrot.app
+
+When working from a Mac Terminal window, you can run the application like this:
+
+  open ../release/BlueParrot.app
+
+Of course it's also a regular Mac application at this point, so you can just open
+the 'release' folder like this: 
+
+  open ../release
+
+and then copy the application icon to your Dock.

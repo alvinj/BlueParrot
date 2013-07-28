@@ -10,7 +10,7 @@
   -->
 
   <property name="sbt_jar_dir" value="target" />
-  <property name="sbt_jar_filename" value="BlueParrot-assembly-1.0.jar" />
+  <property name="sbt_jar_filename" value="BlueParrot-assembly-1.1.jar" />
 
   <!-- main build properties -->
   <property name="build_dir"  value="build"/>

@@ -1,6 +1,7 @@
 package com.alvinalexander.blueparrot
 
 import sys.process._
+import scala.language.postfixOps
 
 object SoundUtils {
   

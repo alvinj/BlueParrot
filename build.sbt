@@ -14,15 +14,5 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.1.1"
 
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.10" % "2.2+"
-
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.10" % "RC1"
-
-//libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.1+"
-
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.10" % "2.2-M1"
-
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.10" % "2.2+"
-
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.10" % "2.1.0"
+//scalacOptions ++= Seq("-deprecation", "-feature")
 

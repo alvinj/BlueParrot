@@ -24,6 +24,7 @@ import javax.swing.JOptionPane
 import javax.swing.event.ChangeListener
 import javax.swing.JSlider
 import javax.swing.event.ChangeEvent
+import scala.language.postfixOps
 
 /**
  * The main "controller" for the application.
