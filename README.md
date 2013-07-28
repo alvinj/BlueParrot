@@ -10,20 +10,12 @@ once every three minutes. Because it does so randomly, some times it will take
 up to three minutes, some times they'll be just seconds apart, but over time
 they should average out to about 90 seconds apart (half of three minutes).
 
-(Note that the code currently only pauses one second between checks. This is
-for development/debugging.)
+To see a video of how the Blue Parrot works, see this link:
 
-There is no UI on the app yet, but you can run it from the command line like
-this:
-
-    $ sbt run
-
-Besides fooling with the source code, the two files you can adjust are in the
-"testing" subdirectory. Note that all sound files beneath the root sound file
-directory are discovered, so they don't have to all be in one directory.
+* http://alvinalexander.com/blueparrot
 
 
-# Sample Sound Files
+## Sample Sound Files
 
 I currently have about 500 sound files in my directory. Here are some URLs
 where I found some great sound clips:
@@ -61,7 +53,7 @@ Many more ...
 * http://www.moviewavs.com/Movies.html
 
 
-# More information
+## More information
 
 For more information, visit the Blue Parrot information link at my website:
 
