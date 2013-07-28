@@ -60,7 +60,7 @@ object FileUtils {
       Thread.sleep(sleepTime)
     }
     catch {
-      case _ => // do nothing
+      case _ : Throwable =>  // do nothing
     }
   }
 

@@ -8,12 +8,10 @@ import com.apple.eawt.Application
 import javax.swing.JFrame
 import akka.actor.ActorRef
 import akka.util.Timeout
-import akka.dispatch.Await
-import akka.dispatch.Await
-import akka.dispatch.Future
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.util.duration._
 import java.util.prefs.Preferences
 import java.io.File
 import javax.swing.JEditorPane
@@ -23,11 +21,16 @@ import javax.swing.JScrollPane
 import javax.swing.event.HyperlinkListener
 import javax.swing.event.HyperlinkEvent
 import javax.swing.JOptionPane
+import javax.swing.event.ChangeListener
+import javax.swing.JSlider
+import javax.swing.event.ChangeEvent
 
-class MainController extends MacOSXApplicationInterface {
+class MainController 
+extends MacOSXApplicationInterface
+{
 
-  var preferences:Preferences = _
-  var parrot:ActorRef = _
+  var preferences: Preferences = _
+  var parrot: ActorRef = _
   val system = ActorSystem("BlueParrot")
 
   // phrases to speak
@@ -37,19 +40,19 @@ class MainController extends MacOSXApplicationInterface {
   val CANON_PHRASES_DIR = USER_HOME_DIR + SLASH + BP_DATA_DIR
   val CANON_PHRASES_FILENAME = USER_HOME_DIR + SLASH + BP_DATA_DIR + SLASH + "BlueParrot.phrases"
   val INITIAL_PHRASES = Array("Hello, world", "Polly wants a cracker. | Vicki", "Polly wants a drink. | Alex")
-    
+
   // preferences
-  var soundFileFolder:String = _
-  var maxWaitTime:Int = _
+  var soundFileFolder: String = _
+  var maxWaitTime: Int = _
   val PREF_SOUND_DIR_KEY = "SOUND_DIR"
   val PREF_MAX_WAIT_KEY = "MAX_WAIT_TIME"
     
-  var phrasesToSpeak:Array[String] = _
+  var phrasesToSpeak: Array[String] = _
 
-  var macApplication:Application = _
-  var macAdapter:MacOSXApplicationAdapter = _
+  var macApplication: Application = _
+  var macAdapter: MacOSXApplicationAdapter = _
   
-  var mainFrameController:MainFrameController = _
+  var mainFrameController: MainFrameController = _
 
   def start {
     connectToPreferences
@@ -103,6 +106,11 @@ class MainController extends MacOSXApplicationInterface {
   
   def stopTalking {
     parrot ! StopMessage
+  }
+  
+  // expect 0 to 100
+  def setGain(gain: Int) {
+    parrot ! SetSoundLevelMessage(gain)
   }
 
   /**
@@ -188,7 +196,6 @@ class MainController extends MacOSXApplicationInterface {
     JOptionPane.showMessageDialog(mainFrameController.mainFrame, scrollPane,
         "About Blue Parrot", JOptionPane.INFORMATION_MESSAGE);
   }  
-  
   
   def doPreferencesAction {
     // TODO if you implement this, you need to un-comment the "setEnabledPreferencesMenu" line in the main method

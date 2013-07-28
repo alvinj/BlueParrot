@@ -29,7 +29,7 @@ package object blueparrot {
       if (currentMinute % 60 == 0) return true
       else return false
     } catch {
-      case _ => return false
+      case _: Throwable => return false
     }
   }
 
@@ -44,7 +44,7 @@ package object blueparrot {
       return "" + currentHour
     } catch {
       // TODO return Some/None/Whatever
-      case _ => return "0"
+      case _: Throwable => return "0"
     }
     return hourFormat.format(today)
   }

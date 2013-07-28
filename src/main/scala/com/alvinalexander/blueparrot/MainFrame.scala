@@ -10,6 +10,10 @@ import javax.swing.JButton
 import java.awt.FlowLayout
 import javax.swing.ImageIcon
 import java.awt.Color
+import javax.swing.JSlider
+import javax.swing.SwingConstants
+import java.util.Hashtable
+import java.awt.GridLayout
 
 class MainFrame extends JFrame {
 
@@ -32,7 +36,7 @@ object MainFrame {
 class MainImagePanel extends JPanel {
   
   // jar approach
-  var parrotImage:ImageIcon = _
+  var parrotImage: ImageIcon = _
   
   try {
     // try getting it out of the jar (production)
@@ -56,13 +60,42 @@ class ActionPanel extends JPanel {
   val editPhrasesWidget = new JButton("Text Phrases")
   val editMaxWaitTimeWidget = new JButton("Max Wait Time")
   val startStopButton = new JButton("Start")
+  val volumeSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 50)
   
+  def configureVolumeSliderControl {
+    volumeSlider.setToolTipText("Volume control");
+    //volumeSlider.addChangeListener(controller);
+    volumeSlider.setMajorTickSpacing(10);
+    volumeSlider.setMinorTickSpacing(2);
+    volumeSlider.setPaintTicks(true);
+    volumeSlider.setPaintLabels(true);
+    //volumeSlider.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
+    
+    val labelTable = new Hashtable[Integer, JLabel]()
+    labelTable.put(new Integer(0), new JLabel("Quiet"))
+    labelTable.put(new Integer(100), new JLabel("Loud"))
+    volumeSlider.setLabelTable(labelTable)
+  }
+
+  // configure the button panel
+  val buttonPanel = new JPanel
+  buttonPanel.setLayout(new FlowLayout)
+  buttonPanel.add(startStopButton)
+  buttonPanel.add(editSoundFileFolderWidget)
+  buttonPanel.add(editPhrasesWidget)
+  buttonPanel.add(editMaxWaitTimeWidget)
+
+  // configure the slider panel
+  configureVolumeSliderControl
+  val sliderPanel = new JPanel
+  sliderPanel.setLayout(new FlowLayout)
+  sliderPanel.add(volumeSlider)
+
+  // add the buttonPanel and sliderPanel to the main/complete panel
+  val gridLayout = new GridLayout(0,2)
   setLayout(new FlowLayout)
-  add(startStopButton)
-  add(editSoundFileFolderWidget)
-  add(editPhrasesWidget)
-  add(editMaxWaitTimeWidget)
-  
+  add(buttonPanel)
+  add(sliderPanel)
 }
 
 

@@ -8,8 +8,11 @@ import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
 import javax.swing.JButton
 import javax.swing.JOptionPane
+import javax.swing.event.ChangeListener
+import javax.swing.event.ChangeEvent
+import javax.swing.JSlider
 
-class MainFrameController(mainController: MainController) {
+class MainFrameController(mainController: MainController) extends ChangeListener {
   
   val mainFrame = new MainFrame
   mainFrame.setTitle("The Blue Parrot")
@@ -18,6 +21,12 @@ class MainFrameController(mainController: MainController) {
   val editPhrasesWidget = mainFrame.actionPanel.editPhrasesWidget
   val editMaxWaitTimeWidget = mainFrame.actionPanel.editMaxWaitTimeWidget
   val startStopButton = mainFrame.actionPanel.startStopButton
+
+  // TODO refactor
+  val volumeSlider = mainFrame.actionPanel.volumeSlider
+  var volumeGain = 50
+  volumeSlider.setValue(volumeGain)
+  volumeSlider.addChangeListener(this)
   
   val editSoundFileFolderListener = new ActionListener {
     def actionPerformed(e: ActionEvent) {
@@ -133,6 +142,22 @@ class MainFrameController(mainController: MainController) {
     });
   }
 
+  //------------------------------ volume slider control ----------------------------
+  
+  /**
+   * This method gets a callback whenever the JSlider control is adjusted.
+   * Values are 0 to 100 (Int).
+   */
+  @Override
+  def stateChanged(event: ChangeEvent) {
+    val source = event.getSource.asInstanceOf[JSlider]
+    if (!source.getValueIsAdjusting()) {
+      var volume = source.getValue.asInstanceOf[Int]
+      System.err.println(s"BLUEPARROT: GAIN = $volume")
+      mainController.setGain(volume)
+    }
+  }
+  
 }
 
 

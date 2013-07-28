@@ -7,17 +7,17 @@ import com.alvinalexander.sound._
 import com.alvinalexander.applescript._
 import java.io.PrintWriter
 import akka.actor._
-import akka.dispatch.Await
-import akka.dispatch.Future
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.util.duration._
-import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable.ArrayBuffer
 
 case object StartMessage
 case object StopMessage
+case class SetSoundLevelMessage(level: Int)  // 0 to 100
 case class SetSoundFolder(folder: String)
 case class MaxWaitTime(t: Int)
 case class SetPhrasesToSpeak(phrases: Array[String])
@@ -42,6 +42,9 @@ extends Actor
     case StopMessage =>
          helper ! StopMessage
 
+    case soundLevelMessage: SetSoundLevelMessage =>
+         helper ! soundLevelMessage
+         
     case SetSoundFolder(folder: String) =>
          helper ! SetSoundFolder(folder)
          
@@ -91,6 +94,7 @@ extends Actor
   private var properties:Properties = _
   private var phrasesToSpeak:Array[String] = _
   private var inSpeakingState = false
+  private var soundLevel = 50  // 0 to 100
   
   val timer = context.actorOf(Props(new TimerHelper(maxWaitTime)), name = "TimerHelper")
   private var allSoundFiles:Array[File] = _
@@ -103,6 +107,9 @@ extends Actor
 
     case StopMessage =>
          inSpeakingState = false
+
+    case soundLevelMessage: SetSoundLevelMessage =>
+         soundLevel = soundLevelMessage.level
 
     case SetSoundFolder(folder) =>
          rootSoundFileDir = folder
@@ -128,10 +135,8 @@ extends Actor
   def makeRandomNoise {
     if (!inSpeakingState) return
     getRandomThing match {
-      case RandomString(s) =>
-           speakText(s)
-      case RandomFile(f) =>
-           playSoundFile(f)
+      case RandomString(s) => speakText(s)
+      case RandomFile(f) => playSoundFile(f)
     }
   }
 
@@ -154,6 +159,7 @@ extends Actor
   }
 
   // TODO add the ability to speak using different voices
+  // TODO use the new volume setting
   def speakText(textToSay: String) {
     if (textToSay.contains("|")) {
       val parts = textToSay.split('|')
@@ -169,7 +175,7 @@ extends Actor
   
   def savePhrasesToSpeak(phrases: Array[String]) {
     // write these new phrases to the proper file; the rest of the code will pick it up from there
-    canonPhrasesFilename
+    //canonPhrasesFilename
     val out = new PrintWriter(canonPhrasesFilename)
     try {
       for (s <- phrases) out.println(s)
@@ -182,9 +188,14 @@ extends Actor
   }
   
   def playSoundFile(f: File) {
-    SoundUtils.playSoundFile(f.getCanonicalPath)
+    SoundUtils.playSoundFile(f.getCanonicalPath, convertVolumeForAfplay(soundLevel))
   }
   
+  /**
+   * Converts the volume to a Double, for use with the Mac 'afplay' command.
+   */
+  def convertVolumeForAfplay(volume: Int): Double = volume / 500.0 
+
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.
    */
