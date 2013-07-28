@@ -67,8 +67,8 @@ For more information, visit the Blue Parrot information link at my website:
 
 * http://alvinalexander.com/blueparrot
 
-All the best,
-Alvin Alexander
+All the best,  
+Alvin Alexander  
 http://alvinalexander.com
 
 
