@@ -1,5 +1,6 @@
 === To-Do List
 
+* Add volume control to the process of speaking text (need to update AppleScript utils)
 * Better graphics and animation (change the color when a sound is playing, etc.)
 * Better UI
 * Clean up and reorganize code
