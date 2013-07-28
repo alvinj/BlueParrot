@@ -22,33 +22,56 @@ Besides fooling with the source code, the two files you can adjust are in the
 "testing" subdirectory. Note that all sound files beneath the root sound file
 directory are discovered, so they don't have to all be in one directory.
 
+
 # Sample Sound Files
 
 I currently have about 500 sound files in my directory. Here are some URLs
 where I found some great sound clips:
 
 Firefly
-  http://www.moviesoundclips.net/sound.php?id=70
-  http://wavs.unclebubby.com/firefly/
+
+* http://www.moviesoundclips.net/sound.php?id=70
+* http://wavs.unclebubby.com/firefly/
 
 Nacho Libre
-  http://www.moviewavs.com/Movies/Nacho_Libre.html
+
+* http://www.moviewavs.com/Movies/Nacho_Libre.html
 
 Short Circuit
-  http://www.moviewavs.com/Movies/Short_Circuit.html
-  http://www.dailywav.com/program.php?Program=ShortCircuit
+
+* http://www.moviewavs.com/Movies/Short_Circuit.html
+* http://www.dailywav.com/program.php?Program=ShortCircuit
   
 Star Trek
-  http://www.moviesoundclips.net/sound.php?id=42
-  http://trekcore.com/audio/
+
+* http://www.moviesoundclips.net/sound.php?id=42
+* http://trekcore.com/audio/
 
 Star Wars
-  http://www.rosswalker.co.uk/star_wars_sounds/
-  http://www.wheelon.com/sounds/sounds.htm
+
+* http://www.rosswalker.co.uk/star_wars_sounds/
+* http://www.wheelon.com/sounds/sounds.htm
 
 Wall-E
-  http://www.moviesoundclips.net/sound.php?id=158
+
+* http://www.moviesoundclips.net/sound.php?id=158
 
 Many more ...
-  http://www.moviewavs.com/Movies.html
+
+* http://www.moviewavs.com/Movies.html
+
+
+# More information
+
+For more information, visit the Blue Parrot information link at my website:
+
+* http://alvinalexander.com/blueparrot
+
+All the best,
+Alvin Alexander
+http://alvinalexander.com
+
+
+
+
 
