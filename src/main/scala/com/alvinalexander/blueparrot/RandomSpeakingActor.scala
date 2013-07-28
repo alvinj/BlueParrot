@@ -188,14 +188,9 @@ extends Actor
   }
   
   def playSoundFile(f: File) {
-    SoundUtils.playSoundFile(f.getCanonicalPath, convertVolumeForAfplay(soundLevel))
+    SoundUtils.playSoundFile(f.getCanonicalPath, soundLevel)
   }
   
-  /**
-   * Converts the volume to a Double, for use with the Mac 'afplay' command.
-   */
-  def convertVolumeForAfplay(volume: Int): Double = volume / 500.0 
-
   /**
    * Get a recursive list of all sound files, presumably from beneath the plugin dir.
    */

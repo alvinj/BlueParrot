@@ -25,6 +25,9 @@ import javax.swing.event.ChangeListener
 import javax.swing.JSlider
 import javax.swing.event.ChangeEvent
 
+/**
+ * The main "controller" for the application.
+ */
 class MainController 
 extends MacOSXApplicationInterface
 {
@@ -162,8 +165,8 @@ extends MacOSXApplicationInterface
 
   val ABOUT_MSG = """<html><center><p>Blue Parrot</p>
 <p>an alvin alexander creation</p></center>
-<center><p><a href=\"http://devdaily.com/blueparrot\">http://devdaily.com/blueparrot</a></p><center>"""
-  val URL = "http://www.devdaily.com/blueparrot"
+<center><p><a href=\"http://alvinalexander.com/blueparrot\">http://alvinalexander.com/blueparrot</a></p><center>"""
+  val URL = "http://alvinalexander.com/blueparrot"
     
   def doAboutAction {
     val editor = new JEditorPane
@@ -193,8 +196,10 @@ extends MacOSXApplicationInterface
     }})
 
     // display our message
-    JOptionPane.showMessageDialog(mainFrameController.mainFrame, scrollPane,
-        "About Blue Parrot", JOptionPane.INFORMATION_MESSAGE);
+    JOptionPane.showMessageDialog(mainFrameController.mainFrame, 
+                                  scrollPane,
+                                  "About Blue Parrot", 
+                                  JOptionPane.INFORMATION_MESSAGE);
   }  
   
   def doPreferencesAction {
@@ -203,6 +208,7 @@ extends MacOSXApplicationInterface
   }
 
   def doQuitAction {
+    system.shutdown
     SwingUtils.sleep(250)
     System.exit(0)
   }
